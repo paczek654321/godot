@@ -2016,6 +2016,7 @@ void Control::set_focus_mode(FocusMode p_focus_mode) {
 
 Control::FocusMode Control::get_focus_mode() const {
 	ERR_READ_THREAD_GUARD_V(FOCUS_NONE);
+	if (ProjectSettings::get_singleton()->get_setting("application/config/disable_focus")) { return FOCUS_NONE; }
 	return data.focus_mode;
 }
 
@@ -2028,7 +2029,7 @@ void Control::grab_focus() {
 	ERR_MAIN_THREAD_GUARD;
 	ERR_FAIL_COND(!is_inside_tree());
 
-	if (data.focus_mode == FOCUS_NONE) {
+	if (get_focus_mode() == FOCUS_NONE) {
 		WARN_PRINT("This control can't grab focus. Use set_focus_mode() to allow a control to get focus.");
 		return;
 	}

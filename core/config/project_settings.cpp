@@ -1446,6 +1446,7 @@ ProjectSettings::ProjectSettings() {
 	GLOBAL_DEF("application/run/main_loop_type", "SceneTree");
 	GLOBAL_DEF("application/config/auto_accept_quit", true);
 	GLOBAL_DEF("application/config/quit_on_go_back", true);
+	GLOBAL_DEF("application/config/disable_focus", false);
 
 	// The default window size is tuned to:
 	// - Have a 16:9 aspect ratio,
