@@ -86,6 +86,7 @@ private:
 
 		Ref<Font> font;
 		int font_size = 0;
+		int font_pressed_size;
 		int outline_size = 0;
 		Color font_outline_color;
 
@@ -105,6 +106,7 @@ private:
 
 	void _shape(Ref<TextParagraph> p_paragraph = Ref<TextParagraph>(), String p_text = "") const;
 	void _texture_changed();
+	int get_current_font_size() const;
 
 protected:
 	virtual void _update_theme_item_cache() override;

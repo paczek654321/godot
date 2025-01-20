@@ -34,6 +34,11 @@
 
 #include "scene/theme/theme_db.h"
 
+int Button::get_current_font_size() const
+{
+	return get_draw_mode() == DRAW_PRESSED && theme_cache.font_pressed_size != get_theme_default_font_size() ? theme_cache.font_pressed_size : theme_cache.font_size;
+}
+
 Size2 Button::get_minimum_size() const {
 	Ref<Texture2D> _icon = icon;
 	if (_icon.is_null() && has_theme_icon(SNAME("icon"))) {
@@ -457,6 +462,8 @@ void Button::_notification(int p_what) {
 
 			// Draw the text.
 			if (!xl_text.is_empty()) {
+				_shape();
+				update_minimum_size();
 				text_buf->set_alignment(align_rtl_checked);
 
 				float text_buf_width = Math::ceil(MAX(1.0f, drawable_size_remained.width)); // The space's width filled by the text_buf.
@@ -548,7 +555,7 @@ Size2 Button::get_minimum_size_for_text_and_icon(const String &p_text, Ref<Textu
 
 	if (!xl_text.is_empty() || !p_text.is_empty()) {
 		Ref<Font> font = theme_cache.font;
-		float font_height = font->get_height(theme_cache.font_size);
+		float font_height = font->get_height(get_current_font_size());
 		if (vertical_icon_alignment == VERTICAL_ALIGNMENT_CENTER) {
 			minsize.height = MAX(font_height, minsize.height);
 		} else {
@@ -571,7 +578,7 @@ void Button::_shape(Ref<TextParagraph> p_paragraph, String p_text) const {
 	p_paragraph->clear();
 
 	Ref<Font> font = theme_cache.font;
-	int font_size = theme_cache.font_size;
+	int font_size = get_current_font_size();
 	if (font.is_null() || font_size == 0) {
 		// Can't shape without a valid font and a non-zero size.
 		return;
@@ -872,6 +879,7 @@ void Button::_bind_methods() {
 
 	BIND_THEME_ITEM(Theme::DATA_TYPE_FONT, Button, font);
 	BIND_THEME_ITEM(Theme::DATA_TYPE_FONT_SIZE, Button, font_size);
+	BIND_THEME_ITEM(Theme::DATA_TYPE_FONT_SIZE, Button, font_pressed_size);
 	BIND_THEME_ITEM(Theme::DATA_TYPE_CONSTANT, Button, outline_size);
 	BIND_THEME_ITEM(Theme::DATA_TYPE_COLOR, Button, font_outline_color);
 
