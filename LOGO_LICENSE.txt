@@ -1,5 +1,9 @@
-Godot Engine Logo
-Copyright (c) 2017 Andrea Calabró
+Modified Godot Engine Logo
+Based on the original work by Andrea Calabró (c) 2017
 
-This work is licensed under the Creative Commons Attribution 4.0 International
-license (CC BY 4.0 International): https://creativecommons.org/licenses/by/4.0/
+This version is derived from the original and includes several modifications.
+
+This work is still licensed under the Creative Commons Attribution 4.0 International license (CC BY 4.0 International):
+https://creativecommons.org/licenses/by/4.0/
+
+Original logo is available in the Godot Engine repository: https://github.com/godotengine/godot
