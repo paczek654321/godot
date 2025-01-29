@@ -910,6 +910,12 @@ void GDScriptParser::parse_class_member(T *(GDScriptParser::*p_parse_function)(b
 	if (member == nullptr) {
 		return;
 	}
+	#ifdef DEBUG_ENABLED
+	if (p_target == AnnotationInfo::CLASS)
+	{
+		push_warning(member->identifier, GDScriptWarning::DEPRECATED_KEYWORD, "class", "class_name");
+	}
+	#endif
 
 #ifdef TOOLS_ENABLED
 	int doc_comment_line = member->start_line - 1;
