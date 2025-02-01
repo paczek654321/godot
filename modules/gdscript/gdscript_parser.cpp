@@ -1524,6 +1524,11 @@ void GDScriptParser::parse_function_signature(FunctionNode *p_function, SuiteNod
 			if (parameter->initializer != nullptr) {
 				default_used = true;
 			} else {
+				if (p_function != nullptr && p_function->identifier != nullptr && p_function->identifier->name == "_init")
+				{
+					push_error("Init function arugments must be optional.");
+					continue;
+				}
 				if (default_used) {
 					push_error("Cannot have mandatory parameters after optional parameters.");
 					continue;
