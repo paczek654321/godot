@@ -42,6 +42,13 @@
 				Returns a [Vector4] with the given components.
 			</description>
 		</constructor>
+		<constructor name="Vector4">
+			<return type="Vector4" />
+			<param index="0" name="value" type="float" />
+			<description>
+				Constructs a new [Vector4] from the given [param value].
+			</description>
+		</constructor>
 	</constructors>
 	<methods>
 		<method name="abs" qualifiers="const">
