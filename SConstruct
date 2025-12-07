@@ -373,6 +373,10 @@ if env["platform"] not in platform_list:
 
     Exit(0 if env["platform"] == "list" else 255)
 
+if env["platform"] == "linuxbsd":
+    env['CC'] = '/usr/bin/gcc-14'
+    env['CXX'] = '/usr/bin/g++-14'
+
 # Add platform-specific options.
 if env["platform"] in platform_opts:
     for opt in platform_opts[env["platform"]]:
