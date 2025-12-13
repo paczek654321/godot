@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  style_box.h                                                           */
+/*  style_box_flat_merged.h                                                      */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -30,52 +30,60 @@
 
 #pragma once
 
-#include "core/io/resource.h"
-#include "core/object/gdvirtual.gen.inc"
+#include "scene/resources/style_box.h"
+#include "scene/resources/style_box_flat.h"
 
-class CanvasItem;
+class StyleBoxFlatMerged : public StyleBox {
+	GDCLASS(StyleBoxFlatMerged, StyleBox);
 
-class StyleBox : public Resource {
-	GDCLASS(StyleBox, Resource);
-	RES_BASE_EXTENSION("stylebox");
-	OBJ_SAVE_TYPE(StyleBox);
+	Ref<StyleBoxFlat> primary;
+	Ref<StyleBoxFlat> secondary;
 
-	float content_margin[4];
+	protected:
+		static void _bind_methods();
+		virtual float get_style_margin(Side p_side) const override;
 
-protected:
-	static void _bind_methods();
-	virtual float get_style_margin(Side p_side) const { return 0; }
+	public:
+		void set_primary_stylebox(const Ref<StyleBoxFlat> &p_stylebox);
+		Ref<StyleBoxFlat> get_primary_stylebox();
 
-	GDVIRTUAL2C_REQUIRED(_draw, RID, Rect2)
-	GDVIRTUAL1RC(Rect2, _get_draw_rect, Rect2)
-	GDVIRTUAL0RC(Size2, _get_minimum_size)
-	GDVIRTUAL2RC(bool, _test_mask, Point2, Rect2)
+		void set_secondary_stylebox(const Ref<StyleBoxFlat> &p_stylebox);
+		Ref<StyleBoxFlat> get_secondary_stylebox();
 
-public:
-	virtual Size2 get_minimum_size() const;
+		Color get_bg_color() const;
 
-	void set_content_margin(Side p_side, float p_value);
-	void set_content_margin_all(float p_value);
-	void set_content_margin_individual(float p_left, float p_top, float p_right, float p_bottom);
-	virtual float get_content_margin(Side p_side) const;
+		Color get_border_color() const;
 
-	virtual float get_margin(Side p_side) const;
-	Point2 get_offset() const;
+		int get_border_width_min() const;
 
-	virtual void draw(RID p_canvas_item, const Rect2 &p_rect) const;
-	virtual Rect2 get_draw_rect(const Rect2 &p_rect) const;
+		int get_border_width(Side p_side) const ;
 
-	CanvasItem *get_current_item_drawn() const;
+		bool get_border_blend() const;
 
-	virtual bool test_mask(const Point2 &p_point, const Rect2 &p_rect) const;
+		int get_corner_radius(Corner p_corner) const;
 
-	StyleBox();
-};
+		int get_corner_detail() const;
 
-class StyleBoxEmpty : public StyleBox {
-	GDCLASS(StyleBoxEmpty, StyleBox);
-	virtual float get_style_margin(Side p_side) const override { return 0; }
+		float get_expand_margin(Side p_expand_side) const;
 
-public:
-	virtual void draw(RID p_canvas_item, const Rect2 &p_rect) const override {}
+		bool is_draw_center_enabled() const;
+
+		Vector2 get_skew() const;
+
+		Color get_shadow_color() const;
+
+		int get_shadow_size() const;
+
+		Point2 get_shadow_offset() const;
+
+		bool is_anti_aliased() const;
+
+		real_t get_aa_size() const;
+
+		virtual float get_content_margin(Side p_side) const override;
+
+		virtual float get_margin(Side p_side) const override;
+
+		virtual Rect2 get_draw_rect(const Rect2 &p_rect) const override;
+		virtual void draw(RID p_canvas_item, const Rect2 &p_rect) const override;
 };

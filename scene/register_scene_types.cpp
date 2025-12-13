@@ -145,6 +145,7 @@
 #include "scene/resources/sky.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/style_box_flat.h"
+#include "scene/resources/style_box_flat_merged.h"
 #include "scene/resources/style_box_line.h"
 #include "scene/resources/style_box_texture.h"
 #include "scene/resources/surface_tool.h"
@@ -1072,6 +1073,7 @@ void register_scene_types() {
 	GDREGISTER_CLASS(StyleBoxEmpty);
 	GDREGISTER_CLASS(StyleBoxTexture);
 	GDREGISTER_CLASS(StyleBoxFlat);
+	GDREGISTER_CLASS(StyleBoxFlatMerged);
 	GDREGISTER_CLASS(StyleBoxLine);
 	GDREGISTER_CLASS(Theme);
 

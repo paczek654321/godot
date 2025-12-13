@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/math/math_defs.h"
 #include "scene/resources/style_box.h"
 
 class StyleBoxFlat : public StyleBox {
