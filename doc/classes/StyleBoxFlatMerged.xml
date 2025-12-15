@@ -5,8 +5,8 @@
 	</brief_description>
 	<description>
 		One of the [StyleBoxFlat]s will be set as primary, its values will be prioritzed. The values set to default will be overriden by those in the second [StyleBoxFlat].
-		In case one [StyleBoxFlat] is not set, the other one will take priority even on values left to default.
-		If none are set the values will be set to mostly useless and arbitrary defaults.
+		In case one [StyleBoxFlat] is not set, the other one will take priority.
+		If none are set the values will be set to the defaults for [StyleBoxFlat].
 	</description>
 	<members>
 		<member name="primary_stylebox" type="StyleBoxFlat" setter="set_primary_stylebox" getter="get_primary_stylebox">

@@ -40,6 +40,7 @@
 #include "core/variant/variant.h"
 #include "scene/property_utils.h"
 
+#include "scene/resources/style_box_flat.h"
 #include "scene/resources/style_box_flat_shared.h"
 
 #define stylebox_variable(name) \
@@ -63,7 +64,7 @@ Ref<StyleBoxFlat> StyleBoxFlatMerged::get_##name##_stylebox() { \
 stylebox_variable(primary);
 stylebox_variable(secondary)
 
-#define get_valid_value(getter, fallback, property) \
+#define get_valid_value(getter, property) \
 if (primary.is_valid()) \
 { \
 	if (!secondary.is_valid() || PropertyUtils::is_property_value_different(primary.ptr(), primary->getter, PropertyUtils::get_property_default_value(primary.ptr(), property))) \
@@ -75,30 +76,30 @@ if (secondary.is_valid()) \
 { \
 	return secondary->getter; \
 } \
-return fallback;
+return ClassDB::class_get_default_property_value("StyleBoxFlat", property);
 
-#define tetradirectional(getter, fallback, condition, v1, v2, v3, v4) \
+#define tetradirectional(getter, condition, v1, v2, v3, v4) \
 switch (condition) { \
 	case 0: \
-		get_valid_value(getter, fallback, v1); \
+		get_valid_value(getter, v1); \
 		break; \
 	case 1: \
-		get_valid_value(getter, fallback, v2); \
+		get_valid_value(getter, v2); \
 		break; \
 	case 2: \
-		get_valid_value(getter, fallback, v3); \
+		get_valid_value(getter, v3); \
 		break; \
 	default: \
-		get_valid_value(getter, fallback, v4); \
+		get_valid_value(getter, v4); \
 		break; \
 }
 
 Color StyleBoxFlatMerged::get_bg_color() const {
-	get_valid_value(get_bg_color(), Color(), "bg_color")
+	get_valid_value(get_bg_color(), "bg_color")
 }
 
 Color StyleBoxFlatMerged::get_border_color() const {
-	get_valid_value(get_border_color(), Color(), "border_color")
+	get_valid_value(get_border_color(), "border_color")
 }
 
 int StyleBoxFlatMerged::get_border_width_min() const {
@@ -107,58 +108,58 @@ int StyleBoxFlatMerged::get_border_width_min() const {
 
 int StyleBoxFlatMerged::get_border_width(Side p_side) const {
 	ERR_FAIL_INDEX_V((int)p_side, 4, 0);
-	tetradirectional(get_border_width(p_side), 0, p_side, "border_width_left", "border_width_top", "border_width_right", "border_width_bottom")
+	tetradirectional(get_border_width(p_side), p_side, "border_width_left", "border_width_top", "border_width_right", "border_width_bottom")
 }
 
 bool StyleBoxFlatMerged::get_border_blend() const {
-	get_valid_value(get_border_blend(), false, "border_blend")
+	get_valid_value(get_border_blend(), "border_blend")
 }
 
 int StyleBoxFlatMerged::get_corner_radius(const Corner p_corner) const {
 	ERR_FAIL_INDEX_V((int)p_corner, 4, 0);
-	tetradirectional(get_corner_radius(p_corner), 0, p_corner, "corner_radius_top_left", "corner_radius_top_right", "corner_radius_bottom_right", "corner_radius_bottom_left")
+	tetradirectional(get_corner_radius(p_corner), p_corner, "corner_radius_top_left", "corner_radius_top_right", "corner_radius_bottom_right", "corner_radius_bottom_left")
 }
 
 int StyleBoxFlatMerged::get_corner_detail() const {
-	get_valid_value(get_corner_detail(), 0, "corner_detail")
+	get_valid_value(get_corner_detail(), "corner_detail")
 }
 
 float StyleBoxFlatMerged::get_expand_margin(Side p_side) const {
 	ERR_FAIL_INDEX_V((int)p_side, 4, 0.0);
-	tetradirectional(get_expand_margin(p_side), 0, p_side, "expand_margin_left", "expand_margin_top", "expand_margin_right", "expand_margin_bottom")
+	tetradirectional(get_expand_margin(p_side), p_side, "expand_margin_left", "expand_margin_top", "expand_margin_right", "expand_margin_bottom")
 }
 
 bool StyleBoxFlatMerged::is_draw_center_enabled() const {
-	get_valid_value(is_draw_center_enabled(), true, "is_draw_center_enabled")
+	get_valid_value(is_draw_center_enabled(), "is_draw_center_enabled")
 }
 
 Vector2 StyleBoxFlatMerged::get_skew() const {
-	get_valid_value(get_skew(), Vector2(), "skew")
+	get_valid_value(get_skew(), "skew")
 }
 
 Color StyleBoxFlatMerged::get_shadow_color() const {
-	get_valid_value(get_shadow_color(), Color(), "shadow_color")
+	get_valid_value(get_shadow_color(), "shadow_color")
 }
 
 int StyleBoxFlatMerged::get_shadow_size() const {
-	get_valid_value(get_shadow_size(), 0, "shadow_size")
+	get_valid_value(get_shadow_size(), "shadow_size")
 }
 
 Point2 StyleBoxFlatMerged::get_shadow_offset() const {
-	get_valid_value(get_shadow_offset(), Point2(Vector2(0,0)), "shadow_offset")
+	get_valid_value(get_shadow_offset(), "shadow_offset")
 }
 
 bool StyleBoxFlatMerged::is_anti_aliased() const {
-	get_valid_value(is_anti_aliased(), true, "anti_aliasing")
+	get_valid_value(is_anti_aliased(), "anti_aliasing")
 }
 
 real_t StyleBoxFlatMerged::get_aa_size() const {
-	get_valid_value(get_aa_size(), 0, "anti_aliasing_size")
+	get_valid_value(get_aa_size(), "anti_aliasing_size")
 }
 
 float StyleBoxFlatMerged::get_content_margin(Side p_side) const {
 	ERR_FAIL_INDEX_V((int)p_side, 4, 0.0);
-	tetradirectional(get_content_margin(p_side), 0, p_side, "content_margin_left", "content_margin_top", "content_margin_right", "content_margin_bottom")
+	tetradirectional(get_content_margin(p_side), p_side, "content_margin_left", "content_margin_top", "content_margin_right", "content_margin_bottom")
 }
 
 float StyleBoxFlatMerged::get_margin(Side p_side) const {
