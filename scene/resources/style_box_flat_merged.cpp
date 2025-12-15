@@ -38,13 +38,9 @@
 #include "core/string/string_name.h"
 #include "core/variant/callable.h"
 #include "core/variant/variant.h"
-#include "scene/main/scene_tree.h"
-#include "scene/main/window.h"
 #include "scene/property_utils.h"
-#include "scene/resources/style_box_flat.h"
-#include "servers/rendering_server.h"
 
-#include "scene/resources/style_box_flat_shared.cpp"
+#include "scene/resources/style_box_flat_shared.h"
 
 #define stylebox_variable(name) \
 void StyleBoxFlatMerged::set_##name##_stylebox(const Ref<StyleBoxFlat> &p_stylebox) { \
@@ -176,221 +172,32 @@ float StyleBoxFlatMerged::get_margin(Side p_side) const {
 }
 
 Rect2 StyleBoxFlatMerged::get_draw_rect(const Rect2 &p_rect) const {
-	Rect2 draw_rect = p_rect.grow_individual(get_expand_margin(SIDE_LEFT), get_expand_margin(SIDE_TOP), get_expand_margin(SIDE_RIGHT), get_expand_margin(SIDE_BOTTOM));
-
-	if (get_shadow_size() > 0) {
-		Rect2 shadow_rect = draw_rect.grow(get_shadow_size());
-		shadow_rect.position += get_shadow_offset();
-		draw_rect = draw_rect.merge(shadow_rect);
-	}
-
-	return draw_rect;
+	real_t expand_margin[4] = {get_expand_margin(SIDE_LEFT),get_expand_margin(SIDE_TOP),get_expand_margin(SIDE_RIGHT),get_expand_margin(SIDE_BOTTOM)};
+	return StyleBoxFlatShared::get_draw_rect(p_rect, expand_margin, get_shadow_size(), get_shadow_offset());
 }
 
 void StyleBoxFlatMerged::draw(RID p_canvas_item, const Rect2 &p_rect) const {
-	bool draw_center = is_draw_center_enabled();
-	int corner_detail = get_corner_detail();
-	Color bg_color = get_bg_color();
-	Vector2 skew = get_skew();
-	
-	bool draw_border = (get_border_width(Side(0)) > 0) || (get_border_width(Side(1)) > 0) || (get_border_width(Side(2)) > 0) || (get_border_width(Side(3)) > 0);
-	bool draw_shadow = (get_shadow_size() > 0);
-	if (!draw_border && !draw_center && !draw_shadow) {
-		return;
-	}
-
-	Rect2 style_rect = p_rect.grow_individual(get_expand_margin(SIDE_LEFT), get_expand_margin(SIDE_TOP), get_expand_margin(SIDE_RIGHT), get_expand_margin(SIDE_BOTTOM));
-	if (Math::is_zero_approx(style_rect.size.width) || Math::is_zero_approx(style_rect.size.height)) {
-		return;
-	}
-
-	const bool rounded_corners = (get_corner_radius(Corner(0)) > 0) || (get_corner_radius(Corner(1)) > 0) || (get_corner_radius(Corner(2)) > 0) || (get_corner_radius(Corner(3)) > 0);
-	// Only enable antialiasing if it is actually needed. This improves performance
-	// and maximizes sharpness for non-skewed StyleBoxes with sharp corners.
-	const bool aa_on = (rounded_corners || !get_skew().is_zero_approx()) && is_anti_aliased();
-
-	const bool blend_on = get_border_blend() && draw_border;
-
-	Color border_color = get_border_color();
-	Color border_color_alpha = Color(border_color.r, border_color.g, border_color.b, 0);
-	Color border_color_blend = (draw_center ? bg_color : border_color_alpha);
-	Color border_color_inner = blend_on ? border_color_blend : border_color;
-
-	// Adapt borders (prevent weird overlapping/glitchy drawings).
-	real_t width = MAX(style_rect.size.width, 0);
-	real_t height = MAX(style_rect.size.height, 0);
-	real_t adapted_border[4] = { 1000000.0, 1000000.0, 1000000.0, 1000000.0 };
-	
-	const real_t border_width[4] = {(real_t)get_border_width(Side(0)), (real_t)get_border_width(Side(1)), (real_t)get_border_width(Side(2)), (real_t)get_border_width(Side(3))};
-	adapt_values(SIDE_TOP, SIDE_BOTTOM, adapted_border, border_width, height, height, height);
-	adapt_values(SIDE_LEFT, SIDE_RIGHT, adapted_border, border_width, width, width, width);
-
-	// Adapt corners (prevent weird overlapping/glitchy drawings).
-	const real_t corner_radius[4] = {(real_t)get_corner_radius(Corner(0)), (real_t)get_corner_radius(Corner(1)), (real_t)get_corner_radius(Corner(2)), (real_t)get_corner_radius(Corner(3))};
-	real_t adapted_corner[4] = { 1000000.0, 1000000.0, 1000000.0, 1000000.0 };
-	adapt_values(CORNER_TOP_RIGHT, CORNER_BOTTOM_RIGHT, adapted_corner, corner_radius, height, height - adapted_border[SIDE_BOTTOM], height - adapted_border[SIDE_TOP]);
-	adapt_values(CORNER_TOP_LEFT, CORNER_BOTTOM_LEFT, adapted_corner, corner_radius, height, height - adapted_border[SIDE_BOTTOM], height - adapted_border[SIDE_TOP]);
-	adapt_values(CORNER_TOP_LEFT, CORNER_TOP_RIGHT, adapted_corner, corner_radius, width, width - adapted_border[SIDE_RIGHT], width - adapted_border[SIDE_LEFT]);
-	adapt_values(CORNER_BOTTOM_LEFT, CORNER_BOTTOM_RIGHT, adapted_corner, corner_radius, width, width - adapted_border[SIDE_RIGHT], width - adapted_border[SIDE_LEFT]);
-
-	Rect2 infill_rect = style_rect.grow_individual(-adapted_border[SIDE_LEFT], -adapted_border[SIDE_TOP], -adapted_border[SIDE_RIGHT], -adapted_border[SIDE_BOTTOM]);
-
-	Rect2 border_style_rect = style_rect;
-
-	real_t aa_size_scaled = 1.0f;
-	if (aa_on) {
-		real_t scale_factor = 1.0f;
-		const SceneTree *tree = Object::cast_to<SceneTree>(OS::get_singleton()->get_main_loop());
-		if (tree) {
-			const Window *window = tree->get_root();
-			const Vector2 stretch_scale = window->get_stretch_transform().get_scale();
-			scale_factor = MIN(stretch_scale.x, stretch_scale.y);
-		}
-
-		// Adjust AA feather size to account for the 2D scale factor, so that
-		// antialiasing doesn't become blurry at viewport resolutions higher
-		// than the default when using the `canvas_items` stretch mode
-		// (or when using `content_scale_factor` values different than `1.0`).
-		aa_size_scaled = get_aa_size() / scale_factor;
-	}
-
-	if (aa_on) {
-		for (int i = 0; i < 4; i++) {
-			if (border_width[i] > 0) {
-				border_style_rect = border_style_rect.grow_side((Side)i, -aa_size_scaled);
-			}
-		}
-	}
-
-	Vector<Point2> verts;
-	Vector<int> indices;
-	Vector<Color> colors;
-	Vector<Point2> uvs;
-
-	// Create shadow.
-	if (draw_shadow) {
-		Point2 shadow_offset = get_shadow_offset();
-		int shadow_size = get_shadow_size();
-		Color shadow_color = get_shadow_color();
-
-		Rect2 shadow_inner_rect = style_rect;
-		shadow_inner_rect.position += shadow_offset;
-
-		Rect2 shadow_rect = style_rect.grow(shadow_size);
-		shadow_rect.position += shadow_offset;
-
-		Color shadow_color_transparent = Color(shadow_color.r, shadow_color.g, shadow_color.b, 0);
-
-		draw_rounded_rectangle(verts, indices, colors, shadow_inner_rect, adapted_corner,
-				shadow_rect, shadow_inner_rect, shadow_color, shadow_color_transparent, corner_detail, skew);
-
-		if (draw_center) {
-			draw_rounded_rectangle(verts, indices, colors, shadow_inner_rect, adapted_corner,
-					shadow_inner_rect, shadow_inner_rect, shadow_color, shadow_color, corner_detail, skew, true);
-		}
-	}
-
-	// Create border (no AA).
-	if (draw_border && !aa_on) {
-		draw_rounded_rectangle(verts, indices, colors, border_style_rect, adapted_corner,
-				border_style_rect, infill_rect, border_color_inner, border_color, corner_detail, skew);
-	}
-
-	// Create infill (no AA).
-	if (draw_center && (!aa_on || blend_on)) {
-		draw_rounded_rectangle(verts, indices, colors, border_style_rect, adapted_corner,
-				infill_rect, infill_rect, bg_color, bg_color, corner_detail, skew, true);
-	}
-
-	if (aa_on) {
-		real_t aa_border_width[4];
-		real_t aa_border_width_half[4];
-		real_t aa_fill_width[4];
-		real_t aa_fill_width_half[4];
-
-		if (draw_border) {
-			for (int i = 0; i < 4; i++) {
-				if (border_width[i] > 0) {
-					aa_border_width[i] = aa_size_scaled;
-					aa_border_width_half[i] = aa_size_scaled * 0.5;
-					aa_fill_width[i] = 0;
-					aa_fill_width_half[i] = 0;
-				} else {
-					aa_border_width[i] = 0;
-					aa_border_width_half[i] = 0;
-					aa_fill_width[i] = aa_size_scaled;
-					aa_fill_width_half[i] = aa_size_scaled * 0.5;
-				}
-			}
-		} else {
-			for (int i = 0; i < 4; i++) {
-				aa_border_width[i] = 0;
-				aa_border_width_half[i] = 0;
-				aa_fill_width[i] = aa_size_scaled;
-				aa_fill_width_half[i] = aa_size_scaled * 0.5;
-			}
-		}
-
-		if (draw_center) {
-			// Infill rect, transparent side of antialiasing gradient (base infill rect enlarged by AA size)
-			Rect2 infill_rect_aa_transparent = infill_rect.grow_individual(aa_fill_width_half[SIDE_LEFT], aa_fill_width_half[SIDE_TOP],
-					aa_fill_width_half[SIDE_RIGHT], aa_fill_width_half[SIDE_BOTTOM]);
-			// Infill rect, colored side of antialiasing gradient (base infill rect shrunk by AA size)
-			Rect2 infill_rect_aa_colored = infill_rect_aa_transparent.grow_individual(-aa_fill_width[SIDE_LEFT], -aa_fill_width[SIDE_TOP],
-					-aa_fill_width[SIDE_RIGHT], -aa_fill_width[SIDE_BOTTOM]);
-			if (!blend_on) {
-				// Create center fill, not antialiased yet
-				draw_rounded_rectangle(verts, indices, colors, border_style_rect, adapted_corner,
-						infill_rect_aa_colored, infill_rect_aa_colored, bg_color, bg_color, corner_detail, skew, true);
-			}
-			if (!blend_on || !draw_border) {
-				Color alpha_bg = Color(bg_color.r, bg_color.g, bg_color.b, 0);
-				// Add antialiasing on the center fill
-				draw_rounded_rectangle(verts, indices, colors, border_style_rect, adapted_corner,
-						infill_rect_aa_transparent, infill_rect_aa_colored, bg_color, alpha_bg, corner_detail, skew);
-			}
-		}
-
-		if (draw_border) {
-			// Inner border recct, fully colored side of antialiasing gradient (base inner rect enlarged by AA size)
-			Rect2 inner_rect_aa_colored = infill_rect.grow_individual(aa_border_width_half[SIDE_LEFT], aa_border_width_half[SIDE_TOP],
-					aa_border_width_half[SIDE_RIGHT], aa_border_width_half[SIDE_BOTTOM]);
-			// Inner border rect, transparent side of antialiasing gradient (base inner rect shrunk by AA size)
-			Rect2 inner_rect_aa_transparent = inner_rect_aa_colored.grow_individual(-aa_border_width[SIDE_LEFT], -aa_border_width[SIDE_TOP],
-					-aa_border_width[SIDE_RIGHT], -aa_border_width[SIDE_BOTTOM]);
-			// Outer border rect, transparent side of antialiasing gradient (base outer rect enlarged by AA size)
-			Rect2 outer_rect_aa_transparent = style_rect.grow_individual(aa_border_width_half[SIDE_LEFT], aa_border_width_half[SIDE_TOP],
-					aa_border_width_half[SIDE_RIGHT], aa_border_width_half[SIDE_BOTTOM]);
-			// Outer border rect, colored side of antialiasing gradient (base outer rect shrunk by AA size)
-			Rect2 outer_rect_aa_colored = border_style_rect.grow_individual(aa_border_width_half[SIDE_LEFT], aa_border_width_half[SIDE_TOP],
-					aa_border_width_half[SIDE_RIGHT], aa_border_width_half[SIDE_BOTTOM]);
-
-			// Create border ring, not antialiased yet
-			draw_rounded_rectangle(verts, indices, colors, border_style_rect, adapted_corner,
-					outer_rect_aa_colored, ((blend_on) ? infill_rect : inner_rect_aa_colored), border_color_inner, border_color, corner_detail, skew);
-			if (!blend_on) {
-				// Add antialiasing on the ring inner border
-				draw_rounded_rectangle(verts, indices, colors, border_style_rect, adapted_corner,
-						inner_rect_aa_colored, inner_rect_aa_transparent, border_color_blend, border_color, corner_detail, skew);
-			}
-			// Add antialiasing on the ring outer border
-			draw_rounded_rectangle(verts, indices, colors, border_style_rect, adapted_corner,
-					outer_rect_aa_transparent, outer_rect_aa_colored, border_color, border_color_alpha, corner_detail, skew);
-		}
-	}
-
-	// Compute UV coordinates.
-	Rect2 uv_rect = style_rect.grow(aa_on ? aa_size_scaled : 0);
-	uvs.resize(verts.size());
-	Point2 *uvs_ptr = uvs.ptrw();
-	for (int i = 0; i < verts.size(); i++) {
-		uvs_ptr[i].x = (verts[i].x - uv_rect.position.x) / uv_rect.size.width;
-		uvs_ptr[i].y = (verts[i].y - uv_rect.position.y) / uv_rect.size.height;
-	}
-
-	// Draw stylebox.
-	RenderingServer *vs = RenderingServer::get_singleton();
-	vs->canvas_item_add_triangle_array(p_canvas_item, indices, verts, colors, uvs);
+	real_t border_width[4] = {(real_t)get_border_width(SIDE_LEFT),(real_t)get_border_width(SIDE_TOP),(real_t)get_border_width(SIDE_RIGHT),(real_t)get_border_width(SIDE_BOTTOM)};
+	real_t expand_margin[4] = {get_expand_margin(SIDE_LEFT),get_expand_margin(SIDE_TOP),get_expand_margin(SIDE_RIGHT),get_expand_margin(SIDE_BOTTOM)};
+	real_t corner_radius[4] = {(real_t)get_corner_radius(CORNER_TOP_LEFT),(real_t)get_corner_radius(CORNER_TOP_RIGHT),(real_t)get_corner_radius(CORNER_BOTTOM_RIGHT),(real_t)get_corner_radius(CORNER_BOTTOM_LEFT)};
+	return StyleBoxFlatShared::draw(
+		p_canvas_item,
+		p_rect,
+		border_width,
+		get_shadow_size(),
+		is_draw_center_enabled(),
+		expand_margin,
+		corner_radius,
+		get_skew(),
+		is_anti_aliased(),
+		get_border_blend(),
+		get_border_color(),
+		get_bg_color(),
+		get_aa_size(),
+		get_shadow_offset(),
+		get_shadow_color(),
+		get_corner_detail()
+	);
 }
 
 float StyleBoxFlatMerged::get_style_margin(Side p_side) const {
