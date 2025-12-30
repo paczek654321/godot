@@ -100,6 +100,9 @@ public:
 	void set_autoplay(bool p_enable);
 	bool is_autoplay_enabled() const;
 
+	void set_loop(bool p_enable);
+	bool is_loop_enabled() const;
+
 	void set_mix_target(MixTarget p_target);
 	MixTarget get_mix_target() const;
 
