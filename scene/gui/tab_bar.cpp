@@ -799,10 +799,10 @@ void TabBar::set_current_tab(int p_current) {
 	}
 
 	if (previous != -1) {
-		set_tab_title(previous, "", false);
+		update_tab_title(previous);
 	}
 	if (current != -1) {
-		set_tab_title(current, "", false);
+		update_tab_title(current);
 	}
 
 	emit_signal(SNAME("tab_selected"), current);
@@ -901,12 +901,15 @@ inline String generate_short_title(String long_title) {
 	return short_title;
 }
 
-void TabBar::set_tab_title(int p_tab, const String &p_title, bool full) {
+void TabBar::set_tab_title(int p_tab, const String &p_title) {
 	ERR_FAIL_INDEX(p_tab, tabs.size());
 
-	if (full) {
-		tabs.write[p_tab].full_text = p_title;
-	}
+	tabs.write[p_tab].full_text = p_title;
+	update_tab_title(p_tab);
+}
+
+void TabBar::update_tab_title(int p_tab) {
+	ERR_FAIL_INDEX(p_tab, tabs.size());
 
 	String current_title = tabs[p_tab].full_text;
 	if (p_tab != current) {

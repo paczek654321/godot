@@ -206,7 +206,8 @@ public:
 
 	void add_tab(const String &p_str = "", const Ref<Texture2D> &p_icon = Ref<Texture2D>());
 
-	void set_tab_title(int p_tab, const String &p_title, bool full = true);
+	void set_tab_title(int p_tab, const String &p_title);
+	void update_tab_title(int p_tab);
 	String get_tab_title(int p_tab) const;
 
 	void set_tab_tooltip(int p_tab, const String &p_tooltip);
