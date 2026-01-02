@@ -192,6 +192,9 @@ public:
 	void set_deselect_enabled(bool p_enabled);
 	bool get_deselect_enabled() const;
 
+	void set_shorten_names(bool p_enabled);
+	bool get_shorten_names() const;
+
 	Control *get_tab_control(int p_idx) const;
 	Control *get_current_tab_control() const;
 

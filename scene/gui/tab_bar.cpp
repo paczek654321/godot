@@ -912,7 +912,7 @@ void TabBar::update_tab_title(int p_tab) {
 	ERR_FAIL_INDEX(p_tab, tabs.size());
 
 	String current_title = tabs[p_tab].full_text;
-	if (p_tab != current) {
+	if (shorten_names && p_tab != current) {
 		current_title = generate_short_title(current_title);
 	}
 
@@ -1289,7 +1289,7 @@ void TabBar::_on_mouse_exited() {
 void TabBar::add_tab(const String &p_str, const Ref<Texture2D> &p_icon) {
 	Tab t;
 	t.full_text = p_str;
-	t.text = generate_short_title(p_str);
+	t.text = shorten_names ? generate_short_title(p_str) : p_str;
 	t.text_buf->set_direction(is_layout_rtl() ? TextServer::DIRECTION_RTL : TextServer::DIRECTION_LTR);
 	t.icon = p_icon;
 	tabs.push_back(t);
@@ -1996,6 +1996,21 @@ bool TabBar::get_deselect_enabled() const {
 	return deselect_enabled;
 }
 
+void TabBar::set_shorten_names(bool p_enabled) {
+	if (shorten_names == p_enabled) {
+		return;
+	}
+	shorten_names = p_enabled;
+	for (int i = 0; i < tabs.size(); i++)
+	{
+		update_tab_title(i);
+	}
+}
+
+bool TabBar::get_shorten_names() const {
+	return shorten_names;
+}
+
 void TabBar::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_tab_count", "count"), &TabBar::set_tab_count);
 	ClassDB::bind_method(D_METHOD("get_tab_count"), &TabBar::get_tab_count);
@@ -2054,6 +2069,8 @@ void TabBar::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_select_with_rmb"), &TabBar::get_select_with_rmb);
 	ClassDB::bind_method(D_METHOD("set_deselect_enabled", "enabled"), &TabBar::set_deselect_enabled);
 	ClassDB::bind_method(D_METHOD("get_deselect_enabled"), &TabBar::get_deselect_enabled);
+	ClassDB::bind_method(D_METHOD("set_shorten_names", "enabled"), &TabBar::set_shorten_names);
+	ClassDB::bind_method(D_METHOD("get_shorten_names"), &TabBar::get_shorten_names);
 	ClassDB::bind_method(D_METHOD("clear_tabs"), &TabBar::clear_tabs);
 
 	ADD_SIGNAL(MethodInfo("tab_selected", PropertyInfo(Variant::INT, "tab")));
@@ -2077,6 +2094,7 @@ void TabBar::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "scroll_to_selected"), "set_scroll_to_selected", "get_scroll_to_selected");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "select_with_rmb"), "set_select_with_rmb", "get_select_with_rmb");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "deselect_enabled"), "set_deselect_enabled", "get_deselect_enabled");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "shorten_names"), "set_shorten_names", "get_shorten_names");
 
 	ADD_ARRAY_COUNT("Tabs", "tab_count", "set_tab_count", "get_tab_count", "tab_");
 

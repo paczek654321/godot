@@ -713,6 +713,14 @@ bool TabContainer::get_deselect_enabled() const {
 	return tab_bar->get_deselect_enabled();
 }
 
+void TabContainer::set_shorten_names(bool p_enabled) {
+	tab_bar->set_shorten_names(p_enabled);
+}
+
+bool TabContainer::get_shorten_names() const {
+	return tab_bar->get_shorten_names();
+}
+
 Control *TabContainer::get_tab_control(int p_idx) const {
 	Vector<Control *> controls = _get_tab_controls();
 	if (p_idx >= 0 && p_idx < controls.size()) {
@@ -1107,6 +1115,8 @@ void TabContainer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_tab_focus_mode"), &TabContainer::get_tab_focus_mode);
 	ClassDB::bind_method(D_METHOD("set_deselect_enabled", "enabled"), &TabContainer::set_deselect_enabled);
 	ClassDB::bind_method(D_METHOD("get_deselect_enabled"), &TabContainer::get_deselect_enabled);
+	ClassDB::bind_method(D_METHOD("set_shorten_names", "enabled"), &TabContainer::set_shorten_names);
+	ClassDB::bind_method(D_METHOD("get_shorten_names"), &TabContainer::get_shorten_names);
 
 	ADD_SIGNAL(MethodInfo("active_tab_rearranged", PropertyInfo(Variant::INT, "idx_to")));
 	ADD_SIGNAL(MethodInfo("tab_changed", PropertyInfo(Variant::INT, "tab")));
@@ -1127,6 +1137,7 @@ void TabContainer::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_hidden_tabs_for_min_size"), "set_use_hidden_tabs_for_min_size", "get_use_hidden_tabs_for_min_size");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "tab_focus_mode", PROPERTY_HINT_ENUM, "None,Click,All"), "set_tab_focus_mode", "get_tab_focus_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "deselect_enabled"), "set_deselect_enabled", "get_deselect_enabled");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "shorten_names"), "set_shorten_names", "get_shorten_names");
 
 	ADD_CLASS_DEPENDENCY("TabBar");
 

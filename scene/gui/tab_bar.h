@@ -108,6 +108,8 @@ private:
 	bool select_with_rmb = false;
 	bool deselect_enabled = false;
 
+	bool shorten_names = false;
+
 	int cb_hover = -1;
 	bool cb_pressing = false;
 	CloseButtonDisplayPolicy cb_displaypolicy = CLOSE_BUTTON_SHOW_NEVER;
@@ -294,6 +296,9 @@ public:
 
 	void set_deselect_enabled(bool p_enabled);
 	bool get_deselect_enabled() const;
+
+	void set_shorten_names(bool p_enabled);
+	bool get_shorten_names() const;
 
 	void ensure_tab_visible(int p_idx);
 
