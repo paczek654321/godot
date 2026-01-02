@@ -30,6 +30,7 @@
 
 #include "tab_bar.h"
 
+#include "core/string/ustring.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/label.h"
 #include "scene/gui/texture_rect.h"
@@ -797,6 +798,13 @@ void TabBar::set_current_tab(int p_current) {
 		return;
 	}
 
+	if (previous != -1) {
+		set_tab_title(previous, "", false);
+	}
+	if (current != -1) {
+		set_tab_title(current, "", false);
+	}
+
 	emit_signal(SNAME("tab_selected"), current);
 
 	_update_cache();
@@ -882,14 +890,34 @@ bool TabBar::get_offset_buttons_visible() const {
 	return buttons_visible;
 }
 
-void TabBar::set_tab_title(int p_tab, const String &p_title) {
+inline String generate_short_title(String long_title) {
+	String short_title = "";
+	for (const auto& word : long_title.split(" "))
+	{
+		if (word.length() > 0) {
+			short_title += word[0];
+		}
+	}
+	return short_title;
+}
+
+void TabBar::set_tab_title(int p_tab, const String &p_title, bool full) {
 	ERR_FAIL_INDEX(p_tab, tabs.size());
 
-	if (tabs[p_tab].text == p_title) {
+	if (full) {
+		tabs.write[p_tab].full_text = p_title;
+	}
+
+	String current_title = tabs[p_tab].full_text;
+	if (p_tab != current) {
+		current_title = generate_short_title(current_title);
+	}
+
+	if (tabs[p_tab].text == current_title) {
 		return;
 	}
 
-	tabs.write[p_tab].text = p_title;
+	tabs.write[p_tab].text = current_title;
 
 	_shape(p_tab);
 	_update_cache();
@@ -1257,7 +1285,8 @@ void TabBar::_on_mouse_exited() {
 
 void TabBar::add_tab(const String &p_str, const Ref<Texture2D> &p_icon) {
 	Tab t;
-	t.text = p_str;
+	t.full_text = p_str;
+	t.text = generate_short_title(p_str);
 	t.text_buf->set_direction(is_layout_rtl() ? TextServer::DIRECTION_RTL : TextServer::DIRECTION_LTR);
 	t.icon = p_icon;
 	tabs.push_back(t);

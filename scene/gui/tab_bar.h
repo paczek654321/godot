@@ -57,6 +57,7 @@ private:
 		mutable RID accessibility_item_element;
 		mutable bool accessibility_item_dirty = true;
 
+		String full_text;
 		String text;
 		String tooltip;
 
@@ -205,7 +206,7 @@ public:
 
 	void add_tab(const String &p_str = "", const Ref<Texture2D> &p_icon = Ref<Texture2D>());
 
-	void set_tab_title(int p_tab, const String &p_title);
+	void set_tab_title(int p_tab, const String &p_title, bool full = true);
 	String get_tab_title(int p_tab) const;
 
 	void set_tab_tooltip(int p_tab, const String &p_tooltip);
