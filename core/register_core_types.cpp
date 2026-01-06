@@ -82,6 +82,7 @@
 #ifndef DISABLE_DEPRECATED
 #include "core/io/packed_data_container.h"
 #endif
+#include "core/io/gif_data.h"
 
 static Ref<ResourceFormatSaverBinary> resource_saver_binary;
 static Ref<ResourceFormatLoaderBinary> resource_loader_binary;
@@ -174,6 +175,7 @@ void register_core_types() {
 	GDREGISTER_CLASS(Resource);
 	GDREGISTER_VIRTUAL_CLASS(MissingResource);
 	GDREGISTER_CLASS(Image);
+	GDREGISTER_CLASS(GIFData);
 
 	GDREGISTER_CLASS(Shortcut);
 	GDREGISTER_ABSTRACT_CLASS(InputEvent);
