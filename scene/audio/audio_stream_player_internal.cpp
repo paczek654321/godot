@@ -77,9 +77,6 @@ void AudioStreamPlayerInternal::process() {
 		_set_process(false);
 	}
 	if (!playbacks_to_remove.is_empty()) {
-		if (loop) {
-			play_callable.call(0.0);
-		}
 		node->emit_signal(SceneStringName(finished));
 	}
 }
