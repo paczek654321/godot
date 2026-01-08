@@ -30,7 +30,6 @@
 
 #include "style_box_flat_merged.h"
 
-#include "core/io/resource.h"
 #include "core/math/math_defs.h"
 #include "core/math/vector2.h"
 #include "core/object/class_db.h"
@@ -45,7 +44,7 @@
 
 #define stylebox_variable(name) \
 void StyleBoxFlatMerged::set_##name##_stylebox(const Ref<StyleBoxFlat> &p_stylebox) { \
-	Callable changed = create_custom_callable_function_pointer<Resource>(this, "emit_changed", &StyleBoxFlatMerged::emit_changed); \
+	Callable changed = Callable(this, "emit_changed"); \
 	if (name.is_valid()) \
 	{ \
 		name->disconnect_changed(changed); \
