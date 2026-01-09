@@ -8,6 +8,7 @@
 		In case one [StyleBoxFlat] is not set, the other one will take priority.
 		If none are set the values will be set to the defaults for [StyleBoxFlat].
 	</description>
+	<tutorials></tutorials>
 	<members>
 		<member name="primary_stylebox" type="StyleBoxFlat" setter="set_primary_stylebox" getter="get_primary_stylebox">
 			The primary [StyleBoxFlat] - Its properties will be prioritzed unless they're set to their default values.
