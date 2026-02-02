@@ -39,13 +39,19 @@ int Button::get_current_font_size() const
 	return get_draw_mode() == DRAW_PRESSED && theme_cache.font_pressed_size != get_theme_default_font_size() ? theme_cache.font_pressed_size : theme_cache.font_size;
 }
 
-Size2 Button::get_minimum_size() const {
+Ref<Texture2D> Button::get_valid_icon() const {
+	if (is_pressed() && has_theme_icon(SNAME("icon_pressed"))) {
+		return theme_cache.icon_pressed;
+	}
 	Ref<Texture2D> _icon = icon;
 	if (_icon.is_null() && has_theme_icon(SNAME("icon"))) {
 		_icon = theme_cache.icon;
 	}
+	return _icon;
+}
 
-	return get_minimum_size_for_text_and_icon("", _icon);
+Size2 Button::get_minimum_size() const {
+	return get_minimum_size_for_text_and_icon("", get_valid_icon());
 }
 
 void Button::_set_internal_margin(Side p_side, float p_value) {
@@ -260,10 +266,7 @@ void Button::_notification(int p_what) {
 				theme_cache.focus->draw(ci, Rect2(Point2(), size));
 			}
 
-			Ref<Texture2D> _icon = icon;
-			if (_icon.is_null() && has_theme_icon(SNAME("icon"))) {
-				_icon = theme_cache.icon;
-			}
+			Ref<Texture2D> _icon = get_valid_icon();
 
 			if (xl_text.is_empty() && _icon.is_null()) {
 				break;
@@ -891,6 +894,7 @@ void Button::_bind_methods() {
 	BIND_THEME_ITEM(Theme::DATA_TYPE_COLOR, Button, icon_disabled_color);
 
 	BIND_THEME_ITEM(Theme::DATA_TYPE_ICON, Button, icon);
+	BIND_THEME_ITEM(Theme::DATA_TYPE_ICON, Button, icon_pressed);
 
 	BIND_THEME_ITEM(Theme::DATA_TYPE_CONSTANT, Button, h_separation);
 	BIND_THEME_ITEM(Theme::DATA_TYPE_CONSTANT, Button, icon_max_width);

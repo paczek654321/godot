@@ -32,6 +32,7 @@
 
 #include "scene/gui/base_button.h"
 #include "scene/resources/text_paragraph.h"
+#include "scene/resources/texture.h"
 
 class Button : public BaseButton {
 	GDCLASS(Button, BaseButton);
@@ -98,6 +99,7 @@ private:
 		Color icon_disabled_color;
 
 		Ref<Texture2D> icon;
+		Ref<Texture2D> icon_pressed;
 
 		int h_separation = 0;
 		int icon_max_width = 0;
@@ -123,6 +125,8 @@ protected:
 
 public:
 	virtual Size2 get_minimum_size() const override;
+
+	Ref<Texture2D> get_valid_icon() const;
 
 	Size2 get_minimum_size_for_text_and_icon(const String &p_text, Ref<Texture2D> p_icon) const;
 
