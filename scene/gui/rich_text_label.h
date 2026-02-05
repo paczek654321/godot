@@ -32,6 +32,7 @@
 
 #include "core/object/worker_thread_pool.h"
 #include "core/templates/rid_owner.h"
+#include "core/variant/array.h"
 #include "scene/gui/popup_menu.h"
 #include "scene/gui/scroll_bar.h"
 #include "scene/resources/image_texture.h"
@@ -707,6 +708,7 @@ private:
 #endif
 	bool use_bbcode = false;
 	String text;
+	String template_text;
 	void _apply_translation();
 
 	bool internal_stack_editing = false;
@@ -932,6 +934,11 @@ public:
 
 	void set_text(const String &p_bbcode);
 	String get_text() const;
+
+	void set_template_text(const String &p_text);
+	String get_template_text() const;
+
+	void format(Array values);
 
 	void set_horizontal_alignment(HorizontalAlignment p_alignment);
 	HorizontalAlignment get_horizontal_alignment() const;

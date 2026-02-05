@@ -29,6 +29,8 @@
 /**************************************************************************/
 
 #include "rich_text_label.h"
+#include "core/object/class_db.h"
+#include "core/variant/array.h"
 #include "rich_text_label.compat.inc"
 
 #include "core/input/input_map.h"
@@ -7035,6 +7037,21 @@ String RichTextLabel::get_text() const {
 	return text;
 }
 
+void RichTextLabel::set_template_text(const String &p_text)
+{
+	template_text = p_text;
+}
+
+String RichTextLabel::get_template_text() const
+{
+	return template_text;
+}
+
+void RichTextLabel::format(Array values)
+{
+	set_text(template_text.format(values));
+}
+
 void RichTextLabel::set_use_bbcode(bool p_enable) {
 	if (use_bbcode == p_enable) {
 		return;
@@ -7428,6 +7445,9 @@ void RichTextLabel::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_parsed_text"), &RichTextLabel::get_parsed_text);
 	ClassDB::bind_method(D_METHOD("add_text", "text"), &RichTextLabel::add_text);
 	ClassDB::bind_method(D_METHOD("set_text", "text"), &RichTextLabel::set_text);
+	ClassDB::bind_method(D_METHOD("set_template_text", "text"), &RichTextLabel::set_template_text);
+	ClassDB::bind_method(D_METHOD("formar", "values"), &RichTextLabel::format);
+
 	ClassDB::bind_method(D_METHOD("add_hr", "width", "height", "color", "alignment", "width_in_percent", "height_in_percent"), &RichTextLabel::add_hr, DEFVAL(90), DEFVAL(2), DEFVAL(Color(1, 1, 1, 1)), DEFVAL(HORIZONTAL_ALIGNMENT_CENTER), DEFVAL(true), DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("add_image", "image", "width", "height", "color", "inline_align", "region", "key", "pad", "tooltip", "width_in_percent", "height_in_percent", "alt_text"), &RichTextLabel::add_image, DEFVAL(0), DEFVAL(0), DEFVAL(Color(1.0, 1.0, 1.0)), DEFVAL(INLINE_ALIGNMENT_CENTER), DEFVAL(Rect2()), DEFVAL(Variant()), DEFVAL(false), DEFVAL(String()), DEFVAL(false), DEFVAL(false), DEFVAL(String()));
 	ClassDB::bind_method(D_METHOD("update_image", "key", "mask", "image", "width", "height", "color", "inline_align", "region", "pad", "tooltip", "width_in_percent", "height_in_percent"), &RichTextLabel::update_image, DEFVAL(0), DEFVAL(0), DEFVAL(Color(1.0, 1.0, 1.0)), DEFVAL(INLINE_ALIGNMENT_CENTER), DEFVAL(Rect2()), DEFVAL(false), DEFVAL(String()), DEFVAL(false), DEFVAL(false));
@@ -7549,6 +7569,7 @@ void RichTextLabel::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("append_text", "bbcode"), &RichTextLabel::append_text);
 
 	ClassDB::bind_method(D_METHOD("get_text"), &RichTextLabel::get_text);
+	ClassDB::bind_method(D_METHOD("get_template_text"), &RichTextLabel::get_template_text);
 
 #ifndef DISABLE_DEPRECATED
 	ClassDB::bind_method(D_METHOD("is_ready"), &RichTextLabel::is_finished);
@@ -7609,6 +7630,7 @@ void RichTextLabel::_bind_methods() {
 	// Note: set "bbcode_enabled" first, to avoid unnecessary "text" resets.
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "bbcode_enabled"), "set_use_bbcode", "is_using_bbcode");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "text", PROPERTY_HINT_MULTILINE_TEXT), "set_text", "get_text");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "template_text", PROPERTY_HINT_MULTILINE_TEXT), "set_template_text", "get_template_text");
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "fit_content"), "set_fit_content", "is_fit_content_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "scroll_active"), "set_scroll_active", "is_scroll_active");
