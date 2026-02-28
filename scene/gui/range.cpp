@@ -203,6 +203,7 @@ void Range::set_value_no_signal(double p_val) {
 
 	if (shared->val != prev_val) {
 		shared->redraw_owners();
+		_value_changed(p_val);
 	}
 }
 
