@@ -7047,7 +7047,7 @@ String RichTextLabel::get_template_text() const
 	return template_text;
 }
 
-void RichTextLabel::format(Array values)
+void RichTextLabel::format(Variant values)
 {
 	set_text(template_text.format(values));
 }

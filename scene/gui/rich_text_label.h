@@ -938,7 +938,7 @@ public:
 	void set_template_text(const String &p_text);
 	String get_template_text() const;
 
-	void format(Array values);
+	void format(Variant values);
 
 	void set_horizontal_alignment(HorizontalAlignment p_alignment);
 	HorizontalAlignment get_horizontal_alignment() const;
