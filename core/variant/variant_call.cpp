@@ -2514,6 +2514,7 @@ static void _register_variant_builtin_methods_array() {
 	bind_method(Array, find_custom, sarray("method", "from"), varray(0));
 	bind_method(Array, rfind, sarray("what", "from"), varray(-1));
 	bind_method(Array, rfind_custom, sarray("method", "from"), varray(-1));
+	bind_method(Array, where, sarray("method", "offset"), varray(0));
 	bind_method(Array, count, sarray("value"), varray());
 	bind_method(Array, has, sarray("value"), varray());
 	bind_method(Array, pop_back, sarray(), varray());

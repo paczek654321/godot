@@ -468,6 +468,11 @@ int Array::rfind_custom(const Callable &p_callable, int p_from) const {
 	return -1;
 }
 
+Variant Array::where(const Callable &p_callable, int p_offset) const
+{
+	return get((find_custom(p_callable) + p_offset) % size());
+}
+
 int Array::count(const Variant &p_value) const {
 	Variant value = p_value;
 	ERR_FAIL_COND_V(!_p->typed.validate(value, "count"), 0);
