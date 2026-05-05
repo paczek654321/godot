@@ -130,6 +130,7 @@
 #include "scene/resources/material.h"
 #include "scene/resources/mesh_data_tool.h"
 #include "scene/resources/mesh_texture.h"
+#include "scene/resources/modulate_texture.h"
 #include "scene/resources/multimesh.h"
 #if !defined(NAVIGATION_2D_DISABLED) || !defined(NAVIGATION_3D_DISABLED)
 #include "scene/resources/navigation_mesh.h"
@@ -1041,6 +1042,7 @@ void register_scene_types() {
 	GDREGISTER_CLASS(PlaceholderCubemap);
 	GDREGISTER_CLASS(PlaceholderCubemapArray);
 	GDREGISTER_CLASS(DPITexture);
+	GDREGISTER_CLASS(ModulateTexture2D);
 #ifndef DISABLE_DEPRECATED
 	GDREGISTER_CLASS(AnimatedTexture);
 #endif
