@@ -29,6 +29,7 @@
 /**************************************************************************/
 
 #pragma once
+#include "core/math/color.h"
 #include "scene/resources/texture.h"
 
 
@@ -62,4 +63,6 @@ public:
 	virtual void draw_rect_region(RID p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, bool p_clip_uv = true) const override;
 
 	bool is_pixel_opaque(int p_x, int p_y) const override;
+
+	static Ref<ModulateTexture2D> create(const Ref<Texture2D> &p_texture, Color p_modulate);
 };

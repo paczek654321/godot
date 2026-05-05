@@ -110,7 +110,17 @@ bool ModulateTexture2D::is_pixel_opaque(int p_x, int p_y) const {
 	return this->texture->is_pixel_opaque(p_x, p_y);
 }
 
+Ref<ModulateTexture2D> ModulateTexture2D::create(const Ref<Texture2D> &p_texture, Color p_modulate) {
+	Ref<ModulateTexture2D> modulate_texture;
+	modulate_texture.instantiate();
+	modulate_texture->set_texture(p_texture);
+	modulate_texture->set_modulate(p_modulate);
+	return modulate_texture;
+}
+
 void ModulateTexture2D::_bind_methods() {
+	ClassDB::bind_static_method("ModulateTexture2D", D_METHOD("create", "texture", "modulate"), &ModulateTexture2D::create);
+	
 	ClassDB::bind_method(D_METHOD("set_modulate", "modulate"), &ModulateTexture2D::set_modulate);
 	ClassDB::bind_method(D_METHOD("get_modulate"), &ModulateTexture2D::get_modulate);
 	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "modulate"), "set_modulate", "get_modulate");
