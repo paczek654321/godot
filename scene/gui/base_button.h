@@ -47,6 +47,7 @@ public:
 private:
 	BitField<MouseButtonMask> button_mask = MouseButtonMask::LEFT;
 	bool toggle_mode = false;
+	bool submit_mode = false;
 	bool shortcut_in_tooltip = true;
 	bool was_mouse_pressed = false;
 	bool keep_pressed_outside = false;
@@ -112,6 +113,8 @@ public:
 	void set_pressed_no_signal(bool p_pressed);
 	void set_toggle_mode(bool p_on);
 	bool is_toggle_mode() const;
+	void set_submit_mode(bool p_on);
+	bool is_submit_mode() const;
 
 	void set_shortcut_in_tooltip(bool p_on);
 	bool is_shortcut_in_tooltip_enabled() const;

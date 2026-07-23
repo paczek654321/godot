@@ -214,20 +214,23 @@ void BaseButton::on_action_event(Ref<InputEvent> p_event) {
 
 	if (status.press_attempt && status.pressing_inside) {
 		if (toggle_mode) {
-			bool is_pressed = p_event->is_pressed();
-			if ((is_pressed && action_mode == ACTION_MODE_BUTTON_PRESS) || (!is_pressed && action_mode == ACTION_MODE_BUTTON_RELEASE)) {
-				if (action_mode == ACTION_MODE_BUTTON_PRESS) {
-					status.press_attempt = false;
-					status.pressing_inside = false;
+			if (!(submit_mode && status.pressed))
+			{
+				bool is_pressed = p_event->is_pressed();
+				if ((is_pressed && action_mode == ACTION_MODE_BUTTON_PRESS) || (!is_pressed && action_mode == ACTION_MODE_BUTTON_RELEASE)) {
+					if (action_mode == ACTION_MODE_BUTTON_PRESS) {
+						status.press_attempt = false;
+						status.pressing_inside = false;
+					}
+					status.pressed = !status.pressed;
+					_unpress_group();
+					if (button_group.is_valid()) {
+						button_group->emit_signal(SceneStringName(pressed), this);
+					}
+					_toggled(status.pressed);
+					_pressed();
+					queue_accessibility_update();
 				}
-				status.pressed = !status.pressed;
-				_unpress_group();
-				if (button_group.is_valid()) {
-					button_group->emit_signal(SceneStringName(pressed), this);
-				}
-				_toggled(status.pressed);
-				_pressed();
-				queue_accessibility_update();
 			}
 		} else {
 			if ((p_event->is_pressed() && action_mode == ACTION_MODE_BUTTON_PRESS) || (!p_event->is_pressed() && action_mode == ACTION_MODE_BUTTON_RELEASE)) {
@@ -369,6 +372,21 @@ void BaseButton::set_toggle_mode(bool p_on) {
 
 bool BaseButton::is_toggle_mode() const {
 	return toggle_mode;
+}
+
+void BaseButton::set_submit_mode(bool p_on) {
+	// Make sure to set 'pressed' to false if we are not in toggle mode
+	if (!p_on) {
+		set_pressed(false);
+	}
+	queue_accessibility_update();
+
+	submit_mode = p_on;
+	update_configuration_warnings();
+}
+
+bool BaseButton::is_submit_mode() const {
+	return submit_mode;
 }
 
 void BaseButton::set_shortcut_in_tooltip(bool p_on) {
@@ -525,6 +543,10 @@ PackedStringArray BaseButton::get_configuration_warnings() const {
 		warnings.push_back(RTR("ButtonGroup is intended to be used only with buttons that have toggle_mode set to true."));
 	}
 
+	if (is_submit_mode() && !is_toggle_mode()) {
+		warnings.push_back("Submit mode is intended to be used only with buttons that have toggle_mode set to true.");
+	}
+
 	return warnings;
 }
 
@@ -535,6 +557,8 @@ void BaseButton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_hovered"), &BaseButton::is_hovered);
 	ClassDB::bind_method(D_METHOD("set_toggle_mode", "enabled"), &BaseButton::set_toggle_mode);
 	ClassDB::bind_method(D_METHOD("is_toggle_mode"), &BaseButton::is_toggle_mode);
+	ClassDB::bind_method(D_METHOD("set_submit_mode", "enabled"), &BaseButton::set_submit_mode);
+	ClassDB::bind_method(D_METHOD("is_submit_mode"), &BaseButton::is_submit_mode);
 	ClassDB::bind_method(D_METHOD("set_shortcut_in_tooltip", "enabled"), &BaseButton::set_shortcut_in_tooltip);
 	ClassDB::bind_method(D_METHOD("is_shortcut_in_tooltip_enabled"), &BaseButton::is_shortcut_in_tooltip_enabled);
 	ClassDB::bind_method(D_METHOD("set_disabled", "disabled"), &BaseButton::set_disabled);
@@ -565,6 +589,7 @@ void BaseButton::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disabled"), "set_disabled", "is_disabled");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "toggle_mode"), "set_toggle_mode", "is_toggle_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "submit_mode"), "set_submit_mode", "is_submit_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "button_pressed"), "set_pressed", "is_pressed");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "action_mode", PROPERTY_HINT_ENUM, "Button Press,Button Release"), "set_action_mode", "get_action_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "button_mask", PROPERTY_HINT_FLAGS, "Mouse Left, Mouse Right, Mouse Middle"), "set_button_mask", "get_button_mask");
