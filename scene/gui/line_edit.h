@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/math/vector2.h"
 #include "scene/gui/control.h"
 #include "scene/gui/popup_menu.h"
 
@@ -334,6 +335,8 @@ public:
 
 	void set_text_direction(TextDirection p_text_direction);
 	TextDirection get_text_direction() const;
+
+	Size2 get_shaped_text_size() const;
 
 	void set_language(const String &p_language);
 	String get_language() const;

@@ -2109,6 +2109,10 @@ Control::TextDirection LineEdit::get_text_direction() const {
 	return text_direction;
 }
 
+Size2 LineEdit::get_shaped_text_size() const {
+	return TS->shaped_text_get_size(text_rid);
+}
+
 void LineEdit::set_language(const String &p_language) {
 	if (language != p_language) {
 		language = p_language;
@@ -3217,6 +3221,7 @@ void LineEdit::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_draw_control_chars", "enable"), &LineEdit::set_draw_control_chars);
 	ClassDB::bind_method(D_METHOD("set_text_direction", "direction"), &LineEdit::set_text_direction);
 	ClassDB::bind_method(D_METHOD("get_text_direction"), &LineEdit::get_text_direction);
+	ClassDB::bind_method(D_METHOD("get_shaped_text_size"), &LineEdit::get_shaped_text_size);
 	ClassDB::bind_method(D_METHOD("set_language", "language"), &LineEdit::set_language);
 	ClassDB::bind_method(D_METHOD("get_language"), &LineEdit::get_language);
 	ClassDB::bind_method(D_METHOD("set_structured_text_bidi_override", "parser"), &LineEdit::set_structured_text_bidi_override);
