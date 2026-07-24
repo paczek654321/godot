@@ -118,6 +118,10 @@ env.PrependENVPath("PKG_CONFIG_PATH", os.getenv("PKG_CONFIG_PATH"))
 if "TERM" in os.environ:  # Used for colored output.
     env["ENV"]["TERM"] = os.environ["TERM"]
 
+for key, value in os.environ.items():
+    if key.startswith('NIX_'):
+        env['ENV'][key] = value
+
 env.disabled_modules = set()
 env.module_version_string = ""
 env.msvc = False
